@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -12,6 +12,7 @@ package com.demonwav.mcdev.platform
 
 import com.demonwav.mcdev.facet.MinecraftFacet
 import com.demonwav.mcdev.insight.generation.ui.EventGenerationPanel
+import com.demonwav.mcdev.platform.foundation.creator.FoundationTemplate
 import com.demonwav.mcdev.util.findContainingClass
 import com.intellij.codeInspection.ex.EntryPointsManager
 import com.intellij.codeInspection.ex.EntryPointsManagerBase
@@ -37,12 +38,18 @@ abstract class AbstractModuleType<out T : AbstractModule>(val groupId: String, v
 
     abstract val id: String
 
+//    abstract val template: BaseTemplate
+
     abstract val ignoredAnnotations: List<String>
 
     abstract val listenerAnnotations: List<String>
 
     val classToColorMappings: Map<String, Color>
         get() = this.colorMap
+
+
+
+
 
     abstract fun generateModule(facet: MinecraftFacet): T
 

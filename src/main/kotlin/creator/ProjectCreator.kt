@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -48,14 +48,15 @@ abstract class BaseProjectCreator(
 
     protected fun createJavaClassStep(
         qualifiedClassName: String,
+        openInEditor: Boolean = true,
         mapper: JavaClassTextMapper
     ): BasicJavaClassStep {
         val (packageName, className) = splitPackage(qualifiedClassName)
         val classText = mapper(packageName, className)
-        return BasicJavaClassStep(project, buildSystem, qualifiedClassName, classText)
+        return BasicJavaClassStep(project, buildSystem, qualifiedClassName, classText, openInEditor)
     }
 
-    protected fun splitPackage(text: String): Pair<String, String> {
+    private fun splitPackage(text: String): Pair<String, String> {
         val index = text.lastIndexOf('.')
         val className = text.substring(index + 1)
         val packageName = text.substring(0, index)

@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -11,11 +11,6 @@
 package com.demonwav.mcdev.facet
 
 import com.demonwav.mcdev.platform.PlatformType
-import com.demonwav.mcdev.platform.architectury.framework.ARCHITECTURY_LIBRARY_KIND
-import com.demonwav.mcdev.platform.architectury.framework.ArchitecturyGradleData
-import com.demonwav.mcdev.platform.fabric.framework.FABRIC_LIBRARY_KIND
-import com.demonwav.mcdev.platform.mcp.gradle.tooling.archloom.ArchitecturyModel
-import com.demonwav.mcdev.platform.sponge.framework.SPONGE_LIBRARY_KIND
 import com.demonwav.mcdev.util.ifEmpty
 import com.demonwav.mcdev.util.runWriteTaskLater
 import com.intellij.facet.FacetManager
@@ -80,7 +75,7 @@ class MinecraftFacetDetector : StartupActivity {
             configuration.state.autoDetectTypes.addAll(platforms)
 
             val facetType = MinecraftFacet.facetTypeOrNull ?: return
-            val facet = facetManager.createFacet(facetType, "Minecraft", configuration, null)
+            val facet = facetManager.createFacet(facetType, "Minecraft-MA", configuration, null)
             runWriteTaskLater {
                 // Only add the new facet if there isn't a Minecraft facet already - double check here since this
                 // task may run much later
@@ -98,16 +93,9 @@ class MinecraftFacetDetector : StartupActivity {
 
         private fun checkExistingFacet(module: Module, facet: MinecraftFacet) {
             val platforms = autoDetectTypes(module).ifEmpty { return }
-
             val types = facet.configuration.state.autoDetectTypes
             types.clear()
             types.addAll(platforms)
-
-            if (facet.configuration.state.forgePatcher) {
-                // make sure Forge and MCP are present
-                types.add(PlatformType.FORGE)
-                types.add(PlatformType.MCP)
-            }
 
             facet.refresh()
         }
@@ -128,6 +116,7 @@ class MinecraftFacetDetector : StartupActivity {
                 .librariesOnly()
                 .forEachLibrary forEach@{ library ->
                     MINECRAFT_LIBRARY_KINDS.forEach { kind ->
+
                         if (presentationManager.isLibraryOfKind(library, context.librariesContainer, setOf(kind))) {
                             val libraryFiles =
                                 context.librariesContainer.getLibraryFiles(library, OrderRootType.CLASSES).toList()
@@ -152,39 +141,6 @@ class MinecraftFacetDetector : StartupActivity {
                     }
                     return@forEach true
                 }
-
-            context.rootModel
-                .orderEntries()
-                .using(context.modulesProvider)
-                .recursively()
-                .withoutLibraries()
-                .withoutSdk()
-                .forEachModule forEach@{ m ->
-                    if (m.name.startsWith("SpongeAPI", ignoreCase = true)) {
-                        // We don't want want to add parent modules in module groups
-                        val moduleManager = ModuleManager.getInstance(m.project)
-                        val groupPath = moduleManager.getModuleGroupPath(m)
-                        if (groupPath == null) {
-                            platformKinds.add(SPONGE_LIBRARY_KIND)
-                            return@forEach true
-                        }
-
-                        val name = groupPath.lastOrNull() ?: return@forEach true
-                        if (m.name == name) {
-                            return@forEach true
-                        }
-
-                        platformKinds.add(SPONGE_LIBRARY_KIND)
-                    }
-                    return@forEach true
-                }
-
-            val architecturyGradleData = GradleUtil.findGradleModuleData(module)?.children
-                ?.find { it.key == ArchitecturyGradleData.KEY }?.data as? ArchitecturyGradleData
-            if (architecturyGradleData?.moduleType == ArchitecturyModel.ModuleType.COMMON) {
-                platformKinds.add(ARCHITECTURY_LIBRARY_KIND)
-                platformKinds.removeIf { it == FABRIC_LIBRARY_KIND }
-            }
             return platformKinds.mapNotNull { kind -> PlatformType.fromLibraryKind(kind) }.toSet()
         }
     }

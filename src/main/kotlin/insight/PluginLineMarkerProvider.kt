@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -12,6 +12,7 @@ package com.demonwav.mcdev.insight
 
 import com.demonwav.mcdev.asset.GeneralAssets
 import com.demonwav.mcdev.facet.MinecraftFacet
+import com.demonwav.mcdev.platform.foundation.FoundationModuleType
 import com.intellij.codeInsight.daemon.LineMarkerInfo
 import com.intellij.codeInsight.daemon.LineMarkerProviderDescriptor
 import com.intellij.openapi.editor.markup.GutterIconRenderer

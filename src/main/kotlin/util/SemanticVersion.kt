@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -13,7 +13,6 @@ package com.demonwav.mcdev.util
 import com.demonwav.mcdev.util.SemanticVersion.Companion.VersionPart.PreReleasePart
 import com.demonwav.mcdev.util.SemanticVersion.Companion.VersionPart.ReleasePart
 import com.demonwav.mcdev.util.SemanticVersion.Companion.VersionPart.TextPart
-import java.net.URLDecoder
 
 /**
  * Represents a comparable and generalised "semantic version".
@@ -131,8 +130,7 @@ class SemanticVersion(
                 }
             }
 
-            val decodedValue = value.split('+').joinToString("+") { URLDecoder.decode(it, Charsets.UTF_8) }
-            val mainPartAndMetadata = decodedValue.split("+", limit = 2)
+            val mainPartAndMetadata = value.split("+", limit = 2)
             val mainPart = mainPartAndMetadata[0]
             val metadata = mainPartAndMetadata.getOrNull(1) ?: ""
 

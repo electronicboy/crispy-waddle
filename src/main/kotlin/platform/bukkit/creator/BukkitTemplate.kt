@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -17,7 +17,7 @@ import com.demonwav.mcdev.creator.buildsystem.maven.BasicMavenStep
 import com.demonwav.mcdev.platform.BaseTemplate
 import com.demonwav.mcdev.platform.bukkit.BukkitLikeConfiguration
 import com.demonwav.mcdev.platform.bukkit.BukkitModuleType
-import com.demonwav.mcdev.platform.bukkit.data.LoadOrder
+import com.demonwav.mcdev.util.MinecraftTemplates
 import com.demonwav.mcdev.util.MinecraftTemplates.Companion.BUKKIT_BUILD_GRADLE_TEMPLATE
 import com.demonwav.mcdev.util.MinecraftTemplates.Companion.BUKKIT_GRADLE_PROPERTIES_TEMPLATE
 import com.demonwav.mcdev.util.MinecraftTemplates.Companion.BUKKIT_MAIN_CLASS_TEMPLATE
@@ -43,8 +43,33 @@ object BukkitTemplate : BaseTemplate() {
         return project.applyTemplate(BUKKIT_MAIN_CLASS_TEMPLATE, props)
     }
 
-    fun applyPom(project: Project): String {
-        return project.applyTemplate(BUKKIT_POM_TEMPLATE, BasicMavenStep.pluginVersions)
+    fun applyPom(project: Project, config: BukkitProjectConfig): String {
+        val props = mutableMapOf(
+            "javaVersion" to config.customJavaVersion,
+            "mainClass" to config.mainClass
+        )
+
+        props.putAll(config.getMavenVersions)
+        val pluginRepo = """ 
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>maven-snapshots</id>
+                    <url>https://repository.apache.org/content/repositories/snapshots/</url>
+                </pluginRepository>
+            </pluginRepositories>
+        """.trimIndent()
+
+        if (config.hasAuthors()) {
+            props["author"] = config.authors[0]
+        } else {
+            props["author"] = System.getProperty("user.name")
+        }
+
+        if (config.customJavaVersion == "17") {
+            props["pluginRepo"] = pluginRepo
+        }
+
+        return project.applyTemplate(BUKKIT_POM_TEMPLATE, props)
     }
 
     fun applySubPom(project: Project): String {
@@ -81,6 +106,17 @@ object BukkitTemplate : BaseTemplate() {
         return project.applyTemplate(BUKKIT_SUBMODULE_BUILD_GRADLE_TEMPLATE, props)
     }
 
+    fun applyAntBuild(
+        project: Project,
+        config: BukkitProjectConfig,
+    ): String {
+        val props = mutableMapOf<String, String>()
+        props["name"] = config.pluginName
+        props["serverPath"] = config.serverPath
+
+        return project.applyTemplate(MinecraftTemplates.BUKKIT_ANT_BUILD_TEMPLATE, props)
+    }
+
     fun applyPluginYml(
         project: Project,
         config: BukkitProjectConfig,
@@ -96,18 +132,6 @@ object BukkitTemplate : BaseTemplate() {
         }
 
         val props = bukkitMain(buildSystem.type, config)
-
-        if (config.hasPrefix()) {
-            props["PREFIX"] = config.prefix ?: throw IllegalStateException("prefix is null when not blank")
-        }
-
-        if (config.loadOrder != LoadOrder.POSTWORLD) {
-            props["LOAD"] = LoadOrder.STARTUP.name
-        }
-
-        if (config.hasLoadBefore()) {
-            props["LOAD_BEFORE"] = config.loadBefore.toString()
-        }
 
         bukkitDeps(props, config)
 

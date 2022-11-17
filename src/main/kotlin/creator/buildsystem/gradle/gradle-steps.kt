@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -338,7 +338,7 @@ class GradleWrapperStep(
 
 // Show the background processes window for setup tasks
 private fun showProgress(project: Project) {
-    if (!UISettings.instance.showStatusBar || UISettings.instance.presentationMode) {
+    if (!UISettings.getInstance().showStatusBar || UISettings.getInstance().presentationMode) {
         return
     }
 

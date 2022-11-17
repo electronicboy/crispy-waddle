@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -11,6 +11,7 @@
 package com.demonwav.mcdev.platform.bukkit
 
 import com.demonwav.mcdev.MinecraftSettings
+import com.demonwav.mcdev.asset.PlatformAssets
 import com.demonwav.mcdev.facet.MinecraftFacet
 import com.intellij.ide.FileIconProvider
 import com.intellij.openapi.module.ModuleUtilCore
@@ -29,11 +30,11 @@ class BukkitFileIconProvider : FileIconProvider {
 
         val module = ModuleUtilCore.findModuleForFile(file, project) ?: return null
         val bukkitModule =
-            MinecraftFacet.getInstance(module, BukkitModuleType, SpigotModuleType, PaperModuleType) ?: return null
+            MinecraftFacet.getInstance(module, SpigotModuleType) ?: return null
 
         if (file == bukkitModule.pluginYml) {
             return bukkitModule.icon
         }
-        return null
+        return null // TODO Temporary patch for a bug I cannot explain
     }
 }

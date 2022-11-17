@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -16,7 +16,6 @@ import com.demonwav.mcdev.platform.AbstractModuleType
 import com.demonwav.mcdev.platform.PlatformType
 import com.demonwav.mcdev.platform.bukkit.generation.BukkitEventGenerationPanel
 import com.demonwav.mcdev.platform.bukkit.util.BukkitConstants
-import com.demonwav.mcdev.platform.bungeecord.util.BungeeCordConstants
 import com.demonwav.mcdev.util.CommonColors
 import com.intellij.psi.PsiClass
 
@@ -26,7 +25,6 @@ object SpigotModuleType : AbstractModuleType<BukkitModule<SpigotModuleType>>("or
 
     init {
         CommonColors.applyStandardColors(colorMap, BukkitConstants.CHAT_COLOR_CLASS)
-        CommonColors.applyStandardColors(colorMap, BungeeCordConstants.CHAT_COLOR_CLASS)
     }
 
     override val platformType = PlatformType.SPIGOT

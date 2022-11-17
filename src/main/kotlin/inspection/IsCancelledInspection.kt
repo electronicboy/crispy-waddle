@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nls
 
 class IsCancelledInspection : BaseInspection() {
     @Nls
-    override fun getDisplayName() = "Useless event isCancelled check"
+    override fun getDisplayName() = "Useless event is cancelled check"
 
     override fun getStaticDescription(): String = "Reports useless event cancellation checks"
 

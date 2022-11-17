@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -54,6 +54,8 @@ abstract class MinecraftModuleWizardStep : ModuleWizardStep() {
         val className = classNameModifier(name.replace(" ", ""))
         return "$packageNameStart.$packageNameEnd.$className"
     }
+
+
 
     protected fun basicUpdateStep(
         creator: MinecraftProjectCreator,

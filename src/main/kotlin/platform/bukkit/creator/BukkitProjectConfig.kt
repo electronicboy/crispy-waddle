@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -19,7 +19,8 @@ import com.demonwav.mcdev.creator.buildsystem.maven.MavenBuildSystem
 import com.demonwav.mcdev.creator.buildsystem.maven.MavenCreator
 import com.demonwav.mcdev.platform.PlatformType
 import com.demonwav.mcdev.platform.bukkit.BukkitLikeConfiguration
-import com.demonwav.mcdev.platform.bukkit.data.LoadOrder
+import com.demonwav.mcdev.platform.versions.MavenPlatformVersionsRegistry
+import com.demonwav.mcdev.util.JavaVersions
 import com.demonwav.mcdev.util.MinecraftVersions
 import com.demonwav.mcdev.util.SemanticVersion
 import com.demonwav.mcdev.util.VersionRange
@@ -31,20 +32,21 @@ class BukkitProjectConfig(override var type: PlatformType) :
     ProjectConfig(), BukkitLikeConfiguration, MavenCreator, GradleCreator {
 
     override lateinit var mainClass: String
+    var useNms = false
+    var useAnt = false;
+    var comboBoxJavaVersion = ""
+    var serverPath: String = ""
 
-    var loadOrder: LoadOrder = LoadOrder.POSTWORLD
     var minecraftVersion: String = ""
     val semanticMinecraftVersion: SemanticVersion
         get() = if (minecraftVersion.isBlank()) SemanticVersion.release() else SemanticVersion.parse(minecraftVersion)
 
-    var prefix: String? = null
-    fun hasPrefix() = prefix?.isNotBlank() == true
+    val customJavaVersion: String
+        get() = JavaVersions.requiredJavaVersion(comboBoxJavaVersion)
 
-    var loadBefore: MutableList<String> = mutableListOf()
-    fun hasLoadBefore() = listContainsAtLeastOne(loadBefore)
-    fun setLoadBefore(string: String) {
-        loadBefore.clear()
-        loadBefore.addAll(commaSplit(string))
+
+    val getMavenVersions by lazy {
+        MavenPlatformVersionsRegistry.loadMavenPlatformVersions()
     }
 
     override val dependencies = mutableListOf<String>()

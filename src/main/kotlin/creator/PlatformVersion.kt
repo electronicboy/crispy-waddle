@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -11,39 +11,29 @@
 package com.demonwav.mcdev.creator
 
 import com.demonwav.mcdev.platform.PlatformType
-import com.demonwav.mcdev.update.PluginUtil
+import com.demonwav.mcdev.util.ProxyHttpConnectionFactory
 import com.demonwav.mcdev.util.fromJson
-import com.github.kittinunf.fuel.core.FuelManager
-import com.github.kittinunf.fuel.core.requests.suspendable
-import com.github.kittinunf.fuel.coroutines.awaitString
 import com.google.gson.Gson
 import com.intellij.openapi.diagnostic.Attachment
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.util.proxy.CommonProxy
 import java.io.IOException
-import java.net.Proxy
-import java.net.URI
 import javax.swing.JComboBox
-import kotlin.reflect.KClass
 
-private const val CLOUDFLARE_BASE_URL = "https://minecraftdev.org/versions/"
-private const val GITHUB_BASE_URL = "https://raw.githubusercontent.com/minecraft-dev/minecraftdev.org/master/versions/"
+private const val cloudflareBaseUrl = "https://minecraftdev.org/versions/" // loads all of the variables
+private const val githubBaseUrl = "https://raw.githubusercontent.com/minecraft-dev/minecraftdev.org/master/versions/" + // loads all of the minecraft versions
+    ""
 
 val PLATFORM_VERSION_LOGGER = Logger.getInstance("MDev.PlatformVersion")
 
-suspend fun getVersionSelector(type: PlatformType): PlatformVersion {
+fun getVersionSelector(type: PlatformType): PlatformVersion {
     val versionJson = type.versionJson ?: throw UnsupportedOperationException("Incorrect platform type: $type")
     return getVersionJson(versionJson)
 }
 
-suspend inline fun <reified T : Any> getVersionJson(path: String): T {
-    return getVersionJson(path, T::class)
-}
-
-suspend fun <T : Any> getVersionJson(path: String, type: KClass<T>): T {
+inline fun <reified T : Any> getVersionJson(path: String): T {
     val text = getText(path)
     try {
-        return Gson().fromJson(text, type)
+        return Gson().fromJson(text)
     } catch (e: Exception) {
         val attachment = Attachment("JSON Document", text)
         attachment.isIncluded = true
@@ -52,45 +42,35 @@ suspend fun <T : Any> getVersionJson(path: String, type: KClass<T>): T {
     }
 }
 
-suspend fun getText(path: String): String {
+fun getText(path: String): String {
     return try {
         // attempt cloudflare
-        doCall(CLOUDFLARE_BASE_URL + path)
+         doCall(cloudflareBaseUrl + path)
+
     } catch (e: IOException) {
-        PLATFORM_VERSION_LOGGER.warn("Failed to reach cloudflare URL ${CLOUDFLARE_BASE_URL + path}", e)
+        PLATFORM_VERSION_LOGGER.warn("Failed to reach cloudflare URL ${cloudflareBaseUrl + path}", e)
         // if that fails, attempt github
         try {
-            doCall(GITHUB_BASE_URL + path)
+            println(doCall(githubBaseUrl + path))
+
+            doCall(githubBaseUrl + path)
         } catch (e: IOException) {
-            PLATFORM_VERSION_LOGGER.warn("Failed to reach fallback GitHub URL ${GITHUB_BASE_URL + path}", e)
+            PLATFORM_VERSION_LOGGER.warn("Failed to reach fallback GitHub URL ${githubBaseUrl + path}", e)
             throw e
         }
     }
 }
 
-private suspend fun doCall(urlText: String): String {
-    val manager = FuelManager()
-    manager.proxy = selectProxy(urlText)
+private fun doCall(urlText: String): String {
+    val connection = ProxyHttpConnectionFactory.openHttpConnection(urlText)
 
-    return manager.get(urlText)
-        .header("User-Agent", "github_org/minecraft-dev/${PluginUtil.pluginVersion}")
-        .header("Accepts", "application/json")
-        .suspendable()
-        .awaitString()
-}
+    connection.setRequestProperty(
+        "User-Agent",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) " +
+            "Chrome/72.0.3626.121 Safari/537.36"
+    )
 
-fun selectProxy(urlText: String): Proxy? {
-    val uri = URI(urlText)
-    val url = uri.toURL()
-
-    val proxies = CommonProxy.getInstance().select(uri)
-    for (proxy in proxies) {
-        try {
-            url.openConnection(proxy)
-            return proxy
-        } catch (_: IOException) {}
-    }
-    return null
+    return connection.inputStream.use { stream -> stream.reader().use { it.readText() } }
 }
 
 data class PlatformVersion(var versions: List<String>, var selectedIndex: Int) {

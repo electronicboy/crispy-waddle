@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -35,35 +35,35 @@ class WrongEntityDataParameterClassInspection : AbstractBaseJavaLocalInspectionT
     override fun buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = Visitor(holder)
 
     class Visitor(private val holder: ProblemsHolder) : JavaElementVisitor() {
-        override fun visitMethodCallExpression(expression: PsiMethodCallExpression?) {
-            super.visitMethodCallExpression(expression)
-            if (expression == null) {
-                return
-            }
-
-            val method = expression.resolveMethod() ?: return
-            val className = method.containingClass?.fullQualifiedName ?: return
-            val methodName = method.name
-
-            if (className !in ENTITY_DATA_MANAGER_CLASSES || methodName !in DEFINE_ID_METHODS) return
-
-            val containingClass = expression.findContainingClass() ?: return
-
-            if (!isEntitySubclass(containingClass)) return
-
-            val firstParameter = expression.argumentList.expressions.firstOrNull() ?: return
-            val firstParameterGenericsClass =
-                ((firstParameter.type as? PsiClassType)?.parameters?.firstOrNull() as? PsiClassType)?.resolve()
-                    ?: return
-
-            if (!containingClass.manager.areElementsEquivalent(containingClass, firstParameterGenericsClass)) {
-                holder.registerProblem(
-                    expression,
-                    "Entity class does not match this entity class",
-                    QuickFix(firstParameter)
-                )
-            }
-        }
+//        override fun visitMethodCallExpression(expression: PsiMethodCallExpression?) {
+//            super.visitMethodCallExpression(expression)
+//            if (expression == null) {
+//                return
+//            }
+//
+//            val method = expression.resolveMethod() ?: return
+//            val className = method.containingClass?.fullQualifiedName ?: return
+//            val methodName = method.name
+//
+//            if (className !in ENTITY_DATA_MANAGER_CLASSES || methodName !in DEFINE_ID_METHODS) return
+//
+//            val containingClass = expression.findContainingClass() ?: return
+//
+//            if (!isEntitySubclass(containingClass)) return
+//
+//            val firstParameter = expression.argumentList.expressions.firstOrNull() ?: return
+//            val firstParameterGenericsClass =
+//                ((firstParameter.type as? PsiClassType)?.parameters?.firstOrNull() as? PsiClassType)?.resolve()
+//                    ?: return
+//
+//            if (!containingClass.manager.areElementsEquivalent(containingClass, firstParameterGenericsClass)) {
+//                holder.registerProblem(
+//                    expression,
+//                    "Entity class does not match this entity class",
+//                    QuickFix(firstParameter)
+//                )
+//            }
+//        }
     }
 
     private class QuickFix(firstParameter: PsiExpression) : LocalQuickFixOnPsiElement(firstParameter) {

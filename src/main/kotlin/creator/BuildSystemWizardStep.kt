@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -66,6 +66,7 @@ class BuildSystemWizardStep(private val creator: MinecraftProjectCreator) : Modu
 
     override fun updateDataModel() {
         creator.buildSystem = createBuildSystem()
+        creator.config!!.pluginName = "HelloWorld"
     }
 
     private fun createBuildSystem(): BuildSystem {

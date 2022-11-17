@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -13,11 +13,7 @@ package com.demonwav.mcdev.creator.buildsystem.maven
 import com.demonwav.mcdev.creator.CreatorStep
 import com.demonwav.mcdev.creator.MinecraftProjectCreator
 import com.demonwav.mcdev.creator.ProjectConfig
-import com.demonwav.mcdev.creator.buildsystem.BuildDependency
-import com.demonwav.mcdev.creator.buildsystem.BuildSystem
-import com.demonwav.mcdev.creator.buildsystem.BuildSystemTemplate
-import com.demonwav.mcdev.creator.buildsystem.BuildSystemType
-import com.demonwav.mcdev.creator.buildsystem.DirectorySet
+import com.demonwav.mcdev.creator.buildsystem.*
 import com.demonwav.mcdev.creator.getVersionJson
 import com.demonwav.mcdev.platform.PlatformType
 import com.demonwav.mcdev.util.invokeLater
@@ -26,10 +22,15 @@ import com.demonwav.mcdev.util.runWriteTask
 import com.demonwav.mcdev.util.virtualFile
 import com.intellij.codeInsight.actions.ReformatCodeProcessor
 import com.intellij.execution.RunManager
+import com.intellij.ide.IdeBundle
+import com.intellij.ide.fileTemplates.FileTemplatesScheme
+import com.intellij.ide.fileTemplates.impl.FileTemplateManagerImpl
+import com.intellij.ide.projectView.impl.ProjectViewSharedSettings
 import com.intellij.lang.xml.XMLLanguage
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
+import com.intellij.project.stateStore
 import com.intellij.psi.PsiFileFactory
 import com.intellij.psi.PsiManager
 import com.intellij.psi.xml.XmlFile
@@ -37,10 +38,7 @@ import com.intellij.psi.xml.XmlTag
 import com.intellij.util.xml.DomManager
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.StandardOpenOption.CREATE
-import java.nio.file.StandardOpenOption.TRUNCATE_EXISTING
-import java.nio.file.StandardOpenOption.WRITE
-import kotlinx.coroutines.runBlocking
+import java.nio.file.StandardOpenOption.*
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel
 import org.jetbrains.idea.maven.execution.MavenRunConfigurationType
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters
@@ -104,9 +102,7 @@ class BasicMavenStep(
 
     companion object {
         val pluginVersions by lazy {
-            runBlocking {
-                getVersionJson<Map<String, String>>("maven.json")
-            }
+            getVersionJson<Map<String, String>>("maven.json")
         }
 
         private val defaultParts = listOf(setupDirs(), setupCore(), setupName(), setupInfo(), setupDependencies())
@@ -163,15 +159,14 @@ class BasicMavenStep(
                 repository.url.value = url
             }
 
-            for ((depGroupId, depArtifactId, depVersion, scope) in step.buildSystem.dependencies) {
-                if (scope == null) {
-                    continue
-                }
+            for ((depGroupId, depArtifactId, depVersion, scope, systemPath) in step.buildSystem.dependencies) {
                 val dependency = model.dependencies.addDependency()
                 dependency.groupId.value = depGroupId
                 dependency.artifactId.value = depArtifactId
                 dependency.version.value = depVersion
                 dependency.scope.value = scope
+                dependency.systemPath.stringValue = systemPath
+                dependency.classifier
             }
         }
 
@@ -194,12 +189,13 @@ class BasicMavenFinalizerStep(
         }
 
         val project = rootModule.project
-
         val pomFile = rootDirectory.resolve("pom.xml")
         val vPomFile = pomFile.virtualFile ?: throw IllegalStateException("Could not find file: $pomFile")
 
         // Force Maven to setup the project
         invokeLater(project.disposed) {
+
+
             val manager = MavenProjectsManager.getInstance(project)
             manager.addManagedFilesOrUnignore(listOf(vPomFile))
             manager.importingSettings.isDownloadDocsAutomatically = true
@@ -208,7 +204,7 @@ class BasicMavenFinalizerStep(
             // Setup the default Maven run config
             val params = MavenRunnerParameters()
             params.workingDirPath = rootDirectory.toAbsolutePath().toString()
-            params.goals = listOf("clean", "package")
+            params.goals = listOf("clean", "install")
             val runnerSettings = MavenRunConfigurationType
                 .createRunnerAndConfigurationSettings(null, null, params, project)
             runnerSettings.name = rootModule.name + " build"
@@ -219,6 +215,27 @@ class BasicMavenFinalizerStep(
             if (runManager.selectedConfiguration == null) {
                 runManager.selectedConfiguration = runnerSettings
             }
+
+            ProjectViewSharedSettings.instance.state.showExcludedFiles = true
+
+
+            val test = object : FileTemplatesScheme(IdeBundle.message("project.scheme")) {
+                override fun getTemplatesDir(): String {
+                    return project.stateStore.projectFilePath.parent.resolve(TEMPLATES_DIR).toString()
+                }
+
+                override fun getProject(): Project {
+                    return project
+                }
+            }
+
+
+            val x = FileTemplateManagerImpl.getInstanceImpl(project)
+            x.currentScheme = test
+            x.state.SCHEME = "Project"
+            x.loadState(x.state)
+
+
         }
     }
 }

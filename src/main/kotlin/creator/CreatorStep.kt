@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -90,7 +90,7 @@ interface CreatorStep {
     }
 }
 
-class BasicJavaClassStep(
+open class BasicJavaClassStep(
     private val project: Project,
     private val buildSystem: BuildSystem,
     private val className: String,

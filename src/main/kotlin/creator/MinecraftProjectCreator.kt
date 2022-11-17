@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -52,6 +52,7 @@ class MinecraftProjectCreator {
             repeat(indent) {
                 sb.append("    ")
             }
+            sb.append(baseIndent).appendLine(if (step is String) step else step.javaClass.name)
             sb.append(baseIndent).appendLine(if (step is String) step else step.javaClass.name)
         }
 

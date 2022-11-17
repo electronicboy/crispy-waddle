@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -35,7 +35,7 @@ abstract class ProjectBuilderTest(descriptor: LightProjectDescriptor? = null) {
 
     init {
         val lightFixture = IdeaTestFixtureFactory.getFixtureFactory()
-            .createLightFixtureBuilder(descriptor)
+            .createLightFixtureBuilder(descriptor, "mcdev_test_project")
             .fixture
 
         // This is a poorly named class - it actually means create a temp dir test fixture _in-memory_

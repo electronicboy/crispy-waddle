@@ -3,20 +3,23 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
 
 package com.demonwav.mcdev
 
+import com.demonwav.mcdev.asset.MCDevBundle
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.openapi.editor.markup.EffectType
+import java.time.LocalDate
 
-@State(name = "MinecraftSettings", storages = [Storage("minecraft_dev.xml")])
+
+@State(name = "MinecraftSettings", storages = [Storage("minecraft_foundation1_dev.xml")])
 class MinecraftSettings : PersistentStateComponent<MinecraftSettings.State> {
 
     data class State(
@@ -24,7 +27,12 @@ class MinecraftSettings : PersistentStateComponent<MinecraftSettings.State> {
         var isShowEventListenerGutterIcons: Boolean = true,
         var isShowChatColorGutterIcons: Boolean = true,
         var isShowChatColorUnderlines: Boolean = false,
-        var underlineType: UnderlineType = UnderlineType.DOTTED
+        var underlineType: UnderlineType = UnderlineType.DOTTED,
+        var nextApiCallDate: LocalDate = LocalDate.parse("2022-10-06"),
+        var foundationVersion: String = "6.1.4",
+        var mavenJarVersion: String = "3.2.2",
+        var mavenShadeVersion: String = "3.0.0",
+        var mavenCompilerVersion: String ="3.10.1"
     )
 
     private var state = State()
@@ -72,6 +80,36 @@ class MinecraftSettings : PersistentStateComponent<MinecraftSettings.State> {
         get() {
             val type = underlineType
             return UnderlineType.values().indices.firstOrNull { type == UnderlineType.values()[it] } ?: 0
+        }
+
+    var foundationVersion: String
+        get() = state.foundationVersion
+        set(foundationVersion) {
+            state.foundationVersion = foundationVersion
+        }
+
+    var mavenJarVersion: String
+        get() = state.mavenJarVersion
+        set(mavenJarVersion) {
+            state.mavenJarVersion = mavenJarVersion
+        }
+
+    var mavenShadeVersion: String
+        get() = state.mavenShadeVersion
+        set(mavenShadeVersion) {
+            state.mavenShadeVersion = mavenShadeVersion
+        }
+
+    var mavenCompilerVersion: String
+        get() = state.mavenCompilerVersion
+        set(mavenCompilerVersion) {
+            state.mavenCompilerVersion = mavenCompilerVersion
+        }
+
+    var nextApiCallDate: LocalDate
+        get() = state.nextApiCallDate
+        set(nextApiCallDate) {
+            state.nextApiCallDate = nextApiCallDate
         }
 
     enum class UnderlineType(private val regular: String, val effectType: EffectType) {

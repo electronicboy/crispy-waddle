@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -69,7 +69,6 @@ abstract class MavenLibraryPresentationProvider(
             if (strict && (properties["groupId"] != groupId || properties["artifactId"] != artifactId)) {
                 continue
             }
-
             val version = properties["version"] as? String ?: continue
             return LibraryVersionProperties(version)
         }

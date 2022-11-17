@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -39,6 +39,8 @@ abstract class BuildSystem(
 
     abstract fun buildCreator(obj: Any, rootDirectory: Path, module: Module): ProjectCreator
     open fun configure(config: ProjectConfig, rootDirectory: Path) {}
+
+//    var javaVersion = "" // TODO Check if needs removal
 
     var repositories: MutableList<BuildRepository> = mutableListOf()
     var dependencies: MutableList<BuildDependency> = mutableListOf()
@@ -118,7 +120,8 @@ data class BuildDependency(
     val artifactId: String = "",
     val version: String = "",
     val mavenScope: String? = null,
-    val gradleConfiguration: String? = null
+    val systemPath: String? = null,
+    val gradleConfiguration: String? = null,
 )
 
 data class BuildRepository(

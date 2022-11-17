@@ -3,21 +3,14 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
 
 package com.demonwav.mcdev.util
 
-import com.demonwav.mcdev.translations.identification.TranslationInstance
-import com.demonwav.mcdev.translations.identification.TranslationInstance.Companion.FormattingError
-import com.intellij.psi.PsiAnnotationMemberValue
-import com.intellij.psi.PsiCall
-import com.intellij.psi.PsiLiteral
-import com.intellij.psi.PsiReferenceExpression
-import com.intellij.psi.PsiTypeCastExpression
-import com.intellij.psi.PsiVariable
+import com.intellij.psi.*
 
 fun PsiAnnotationMemberValue.evaluate(allowReferences: Boolean, allowTranslations: Boolean): String? {
     val visited = mutableSetOf<PsiAnnotationMemberValue?>()
@@ -38,15 +31,7 @@ fun PsiAnnotationMemberValue.evaluate(allowReferences: Boolean, allowTranslation
             }
             expr is PsiLiteral ->
                 return expr.value.toString()
-            expr is PsiCall && allowTranslations ->
-                for (argument in expr.argumentList?.expressions ?: emptyArray()) {
-                    val translation = TranslationInstance.find(argument) ?: continue
-                    if (translation.formattingError == FormattingError.MISSING) {
-                        return "{ERROR: Missing formatting arguments for '${translation.text}'}"
-                    }
 
-                    return translation.text
-                }
         }
 
         return if (allowReferences && expr != null) {

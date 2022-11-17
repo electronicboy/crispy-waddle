@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -193,7 +193,7 @@ fun UElement.setColor(color: String) {
     sourcePsi.containingFile.runWriteAction {
         val project = sourcePsi.project
         val parent = this.uastParent
-        val newColorRef = generationPlugin?.getElementFactory(project)?.createQualifiedReference(color, this)
+        val newColorRef = generationPlugin?.getElementFactory(project)?.createQualifiedReference(color, sourcePsi)
             ?: return@runWriteAction
         if (this.lang.id == "kotlin") {
             // Kotlin UAST is a bit different, annoying but I couldn't find a better way

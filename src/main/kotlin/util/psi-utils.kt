@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -11,8 +11,6 @@
 package com.demonwav.mcdev.util
 
 import com.demonwav.mcdev.facet.MinecraftFacet
-import com.demonwav.mcdev.platform.mcp.McpModule
-import com.demonwav.mcdev.platform.mcp.McpModuleType
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleManager
@@ -63,11 +61,11 @@ fun PsiElement.findContainingClass(): PsiClass? = findParent(resolveReferences =
 
 fun PsiElement.findReferencedClass(): PsiClass? = findParent(resolveReferences = true)
 
-fun PsiElement.findReferencedMember(): PsiMember? = findParent(resolveReferences = true) { it is PsiClass }
+fun PsiElement.findReferencedMember(): PsiMember? = findParent({ it is PsiClass }, resolveReferences = true)
 
-fun PsiElement.findContainingMember(): PsiMember? = findParent(resolveReferences = false) { it is PsiClass }
+fun PsiElement.findContainingMember(): PsiMember? = findParent({ it is PsiClass }, resolveReferences = false)
 
-fun PsiElement.findContainingMethod(): PsiMethod? = findParent(resolveReferences = false) { it is PsiClass }
+fun PsiElement.findContainingMethod(): PsiMethod? = findParent({ it is PsiClass }, resolveReferences = false)
 
 private val PsiElement.ancestors: Sequence<PsiElement>
     get() = generateSequence(this) { if (it is PsiFile) null else it.parent }
@@ -75,12 +73,12 @@ private val PsiElement.ancestors: Sequence<PsiElement>
 fun PsiElement.isAncestorOf(child: PsiElement): Boolean = child.ancestors.contains(this)
 
 private inline fun <reified T : PsiElement> PsiElement.findParent(resolveReferences: Boolean): T? {
-    return findParent(resolveReferences) { false }
+    return findParent({ false }, resolveReferences)
 }
 
 private inline fun <reified T : PsiElement> PsiElement.findParent(
-    resolveReferences: Boolean,
     stop: (PsiElement) -> Boolean,
+    resolveReferences: Boolean
 ): T? {
     var el: PsiElement = this
 
@@ -218,40 +216,6 @@ fun LookupElementBuilder.withImportInsertion(toImport: List<PsiClass>): LookupEl
         toImport.forEach { ImportUtils.addImportIfNeeded(it, insertionContext.file) }
     }
 
-fun PsiElement.findMcpModule() = this.cached {
-    val file = containingFile?.virtualFile ?: return@cached null
-    val index = ProjectFileIndex.getInstance(project)
-    val modules = if (index.isInLibrary(file)) {
-        val library = index.getOrderEntriesForFile(file)
-            .asSequence()
-            .mapNotNull { it as? LibraryOrderEntry }
-            .firstOrNull()
-            ?.library
-            ?: return@cached null
-        ModuleManager.getInstance(project).modules.asSequence()
-            .filter { OrderEntryUtil.findLibraryOrderEntry(ModuleRootManager.getInstance(it), library) != null }
-    } else sequenceOf(this.findModule())
-
-    modules.mapNotNull { it?.findMcpModule() }.firstOrNull()
-}
-
-private fun Module.findMcpModule(): McpModule? {
-    var result: McpModule? = null
-    ModuleUtilCore.visitMeAndDependentModules(this) {
-        result = MinecraftFacet.getInstance(it, McpModuleType)
-        result == null
-    }
-    return result
-}
-
-val PsiElement.mcVersion: SemanticVersion?
-    get() = this.cached {
-        findMcpModule()?.let {
-            SemanticVersion.parse(it.getSettings().minecraftVersion ?: return@let null)
-        }
-    }
-
-@Suppress("PrivatePropertyName")
 private val REAL_NAME_KEY = Key<String>("mcdev.real_name")
 
 var PsiMember.realName: String?

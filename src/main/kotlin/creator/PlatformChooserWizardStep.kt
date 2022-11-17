@@ -3,29 +3,20 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
 
 package com.demonwav.mcdev.creator
 
-import com.demonwav.mcdev.asset.PlatformAssets
 import com.demonwav.mcdev.platform.PlatformType
-import com.demonwav.mcdev.platform.architectury.creator.ArchitecturyProjectConfig
 import com.demonwav.mcdev.platform.bukkit.creator.BukkitProjectConfig
-import com.demonwav.mcdev.platform.bungeecord.creator.BungeeCordProjectConfig
-import com.demonwav.mcdev.platform.fabric.creator.FabricProjectConfig
-import com.demonwav.mcdev.platform.forge.creator.ForgeProjectConfig
-import com.demonwav.mcdev.platform.liteloader.creator.LiteLoaderProjectConfig
-import com.demonwav.mcdev.platform.sponge.creator.SpongeProjectConfig
-import com.demonwav.mcdev.platform.velocity.creator.VelocityProjectConfig
+import com.demonwav.mcdev.platform.foundation.creator.FoundationProjectConfig
 import com.intellij.ide.util.projectWizard.ModuleWizardStep
 import com.intellij.ui.components.JBRadioButton
-import com.intellij.util.ui.UIUtil
 import javax.swing.ButtonGroup
 import javax.swing.JComponent
-import javax.swing.JLabel
 import javax.swing.JPanel
 
 class PlatformChooserWizardStep(private val creator: MinecraftProjectCreator) : ModuleWizardStep() {
@@ -33,25 +24,18 @@ class PlatformChooserWizardStep(private val creator: MinecraftProjectCreator) : 
     private lateinit var panel: JPanel
 
     private lateinit var projectButtons: ButtonGroup
-    private lateinit var spongeIcon: JLabel
-    private lateinit var bukkitPluginButton: JBRadioButton
+    private lateinit var foundationPluginButton: JBRadioButton
     private lateinit var spigotPluginButton: JBRadioButton
-    private lateinit var paperPluginButton: JBRadioButton
-    private lateinit var spongePluginButton: JBRadioButton
-    private lateinit var forgeModButton: JBRadioButton
-    private lateinit var fabricModButton: JBRadioButton
-    private lateinit var architecturyModButton: JBRadioButton
-    private lateinit var bungeeCordPluginButton: JBRadioButton
-    private lateinit var waterfallPluginButton: JBRadioButton
-    private lateinit var velocityPluginButton: JBRadioButton
-    private lateinit var liteLoaderModButton: JBRadioButton
 
+
+//    private lateinit var bukkitPluginButton: JBRadioButton
+//    private lateinit var paperPluginButton: JBRadioButton
     override fun getComponent(): JComponent {
-        if (UIUtil.isUnderDarcula()) {
-            spongeIcon.icon = PlatformAssets.SPONGE_ICON_2X_DARK
-        } else {
-            spongeIcon.icon = PlatformAssets.SPONGE_ICON_2X
-        }
+//        if (UIUtil.isUnderDarcula()) {
+//            spongeIcon.icon = PlatformAssets.SPONGE_ICON_2X_DARK
+//        } else {
+//            spongeIcon.icon = PlatformAssets.SPONGE_ICON_2X
+//        }
 
         return panel
     }
@@ -73,17 +57,12 @@ class PlatformChooserWizardStep(private val creator: MinecraftProjectCreator) : 
 
     private fun buildConfig(): ProjectConfig? {
         return when {
-            bukkitPluginButton.isSelected -> BukkitProjectConfig(PlatformType.BUKKIT)
+            foundationPluginButton.isSelected -> FoundationProjectConfig(PlatformType.FOUNDATION)
             spigotPluginButton.isSelected -> BukkitProjectConfig(PlatformType.SPIGOT)
-            paperPluginButton.isSelected -> BukkitProjectConfig(PlatformType.PAPER)
-            spongePluginButton.isSelected -> SpongeProjectConfig()
-            forgeModButton.isSelected -> ForgeProjectConfig()
-            fabricModButton.isSelected -> FabricProjectConfig()
-            architecturyModButton.isSelected -> ArchitecturyProjectConfig()
-            liteLoaderModButton.isSelected -> LiteLoaderProjectConfig()
-            bungeeCordPluginButton.isSelected -> BungeeCordProjectConfig(PlatformType.BUNGEECORD)
-            waterfallPluginButton.isSelected -> BungeeCordProjectConfig(PlatformType.WATERFALL)
-            velocityPluginButton.isSelected -> VelocityProjectConfig()
+//            bukkitPluginButton.isSelected -> BukkitProjectConfig(PlatformType.BUKKIT)
+//
+//            paperPluginButton.isSelected -> BukkitProjectConfig(PlatformType.PAPER)
+//
             else -> null
         }
     }

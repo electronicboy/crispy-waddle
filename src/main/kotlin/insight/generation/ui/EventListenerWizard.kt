@@ -3,18 +3,15 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
 
 package com.demonwav.mcdev.insight.generation.ui
 
-import com.intellij.ide.highlighter.JavaHighlightingColors
-import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.wm.ex.IdeFocusTraversalPolicy
 import com.intellij.uiDesigner.core.GridConstraints
-import com.intellij.util.ui.UIUtil
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JSeparator
@@ -29,16 +26,6 @@ class EventListenerWizard(panel: JPanel?, className: String, defaultListenerName
     private lateinit var separator: JSeparator
 
     init {
-        classNameTextField.font = EditorUtil.getEditorFont()
-        listenerNameTextField.font = EditorUtil.getEditorFont()
-        publicVoidLabel.font = EditorUtil.getEditorFont()
-        if (UIUtil.isUnderDarcula()) {
-            publicVoidLabel.foreground = JavaHighlightingColors.KEYWORD.defaultAttributes.foregroundColor
-        } else {
-            publicVoidLabel.foreground =
-                JavaHighlightingColors.KEYWORD.fallbackAttributeKey!!.defaultAttributes.foregroundColor
-        }
-
         if (panel != null) {
             separator.isVisible = true
             contentPanel.add(panel, innerContentPanelConstraints)

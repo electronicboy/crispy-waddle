@@ -3,14 +3,13 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
 
 package com.demonwav.mcdev.facet
 
-import com.demonwav.mcdev.asset.PlatformAssets
 import com.demonwav.mcdev.platform.PlatformType
 import com.intellij.facet.ui.FacetEditorTab
 import com.intellij.util.ui.UIUtil
@@ -23,171 +22,49 @@ class MinecraftFacetEditorTab(private val configuration: MinecraftFacetConfigura
 
     private lateinit var panel: JPanel
 
-    private lateinit var bukkitEnabledCheckBox: JCheckBox
-    private lateinit var bukkitAutoCheckBox: JCheckBox
     private lateinit var spigotEnabledCheckBox: JCheckBox
     private lateinit var spigotAutoCheckBox: JCheckBox
-    private lateinit var paperEnabledCheckBox: JCheckBox
-    private lateinit var paperAutoCheckBox: JCheckBox
-    private lateinit var spongeEnabledCheckBox: JCheckBox
-    private lateinit var spongeAutoCheckBox: JCheckBox
-    private lateinit var forgeEnabledCheckBox: JCheckBox
-    private lateinit var forgeAutoCheckBox: JCheckBox
-    private lateinit var fabricEnabledCheckBox: JCheckBox
-    private lateinit var fabricAutoCheckBox: JCheckBox
-    private lateinit var architecturyEnabledCheckBox: JCheckBox
-    private lateinit var architecturyAutoCheckBox: JCheckBox
-    private lateinit var liteloaderEnabledCheckBox: JCheckBox
-    private lateinit var liteloaderAutoCheckBox: JCheckBox
-    private lateinit var mcpEnabledCheckBox: JCheckBox
-    private lateinit var mcpAutoCheckBox: JCheckBox
-    private lateinit var mixinEnabledCheckBox: JCheckBox
-    private lateinit var mixinAutoCheckBox: JCheckBox
-    private lateinit var bungeecordEnabledCheckBox: JCheckBox
-    private lateinit var bungeecordAutoCheckBox: JCheckBox
-    private lateinit var waterfallEnabledCheckBox: JCheckBox
-    private lateinit var waterfallAutoCheckBox: JCheckBox
-    private lateinit var velocityEnabledCheckBox: JCheckBox
-    private lateinit var velocityAutoCheckBox: JCheckBox
-    private lateinit var adventureEnabledCheckBox: JCheckBox
-    private lateinit var adventureAutoCheckBox: JCheckBox
+    private lateinit var foundationEnabledCheckBox: JCheckBox
+    private lateinit var foundationAutoCheckBox: JCheckBox
 
-    private lateinit var spongeIcon: JLabel
-    private lateinit var mcpIcon: JLabel
-    private lateinit var mixinIcon: JLabel
 
     private val enableCheckBoxArray: Array<JCheckBox> by lazy {
         arrayOf(
-            bukkitEnabledCheckBox,
             spigotEnabledCheckBox,
-            paperEnabledCheckBox,
-            spongeEnabledCheckBox,
-            forgeEnabledCheckBox,
-            fabricEnabledCheckBox,
-            architecturyEnabledCheckBox,
-            liteloaderEnabledCheckBox,
-            mcpEnabledCheckBox,
-            mixinEnabledCheckBox,
-            bungeecordEnabledCheckBox,
-            waterfallEnabledCheckBox,
-            velocityEnabledCheckBox,
-            adventureEnabledCheckBox
+            foundationEnabledCheckBox
+
         )
     }
 
     private val autoCheckBoxArray: Array<JCheckBox> by lazy {
         arrayOf(
-            bukkitAutoCheckBox,
             spigotAutoCheckBox,
-            paperAutoCheckBox,
-            spongeAutoCheckBox,
-            forgeAutoCheckBox,
-            fabricAutoCheckBox,
-            architecturyAutoCheckBox,
-            liteloaderAutoCheckBox,
-            mcpAutoCheckBox,
-            mixinAutoCheckBox,
-            bungeecordAutoCheckBox,
-            waterfallAutoCheckBox,
-            velocityAutoCheckBox,
-            adventureAutoCheckBox
+            foundationEnabledCheckBox
         )
     }
 
     override fun createComponent(): JComponent {
         if (UIUtil.isUnderDarcula()) {
-            spongeIcon.icon = PlatformAssets.SPONGE_ICON_2X_DARK
-            mcpIcon.icon = PlatformAssets.MCP_ICON_2X_DARK
-            mixinIcon.icon = PlatformAssets.MIXIN_ICON_2X_DARK
+
         }
 
         runOnAll { enabled, auto, platformType, _, _ ->
             auto.addActionListener { checkAuto(auto, enabled, platformType) }
         }
 
-        bukkitEnabledCheckBox.addActionListener {
-            unique(
-                bukkitEnabledCheckBox,
-                spigotEnabledCheckBox,
-                paperEnabledCheckBox
-            )
-        }
+
         spigotEnabledCheckBox.addActionListener {
             unique(
                 spigotEnabledCheckBox,
-                bukkitEnabledCheckBox,
-                paperEnabledCheckBox
-            )
-        }
-        paperEnabledCheckBox.addActionListener {
-            unique(
-                paperEnabledCheckBox,
-                bukkitEnabledCheckBox,
-                spigotEnabledCheckBox
             )
         }
 
-        bukkitAutoCheckBox.addActionListener {
-            all(bukkitAutoCheckBox, spigotAutoCheckBox, paperAutoCheckBox)(
-                SPIGOT,
-                PAPER
-            )
-        }
+
         spigotAutoCheckBox.addActionListener {
-            all(spigotAutoCheckBox, bukkitAutoCheckBox, paperAutoCheckBox)(
-                BUKKIT,
-                PAPER
-            )
-        }
-        paperAutoCheckBox.addActionListener {
-            all(paperAutoCheckBox, bukkitAutoCheckBox, spigotAutoCheckBox)(
-                BUKKIT,
-                SPIGOT
+            all(spigotAutoCheckBox)(
             )
         }
 
-        forgeEnabledCheckBox.addActionListener {
-            also(forgeEnabledCheckBox, mcpEnabledCheckBox)
-            unique(forgeEnabledCheckBox, architecturyEnabledCheckBox)
-        }
-        fabricEnabledCheckBox.addActionListener {
-            also(fabricEnabledCheckBox, mixinEnabledCheckBox, mcpEnabledCheckBox)
-            unique(fabricEnabledCheckBox, architecturyEnabledCheckBox)
-        }
-        architecturyEnabledCheckBox.addActionListener {
-            unique(
-                architecturyEnabledCheckBox,
-                fabricEnabledCheckBox,
-                forgeEnabledCheckBox
-            )
-        }
-
-        forgeAutoCheckBox.addActionListener {
-            all(forgeAutoCheckBox, fabricAutoCheckBox, architecturyAutoCheckBox)(
-                FABRIC,
-                ARCHITECTURY
-            )
-        }
-
-        fabricAutoCheckBox.addActionListener {
-            all(fabricAutoCheckBox, forgeAutoCheckBox, architecturyAutoCheckBox)(
-                FORGE,
-                ARCHITECTURY
-            )
-        }
-
-        architecturyAutoCheckBox.addActionListener {
-            all(architecturyAutoCheckBox, forgeAutoCheckBox, fabricAutoCheckBox)(
-                FORGE,
-                FABRIC
-            )
-        }
-
-        liteloaderEnabledCheckBox.addActionListener { also(liteloaderEnabledCheckBox, mcpEnabledCheckBox) }
-        mixinEnabledCheckBox.addActionListener { also(mixinEnabledCheckBox, mcpEnabledCheckBox) }
-
-        bungeecordEnabledCheckBox.addActionListener { unique(bungeecordEnabledCheckBox, waterfallEnabledCheckBox) }
-        waterfallEnabledCheckBox.addActionListener { unique(waterfallEnabledCheckBox, bungeecordEnabledCheckBox) }
 
         return panel
     }
@@ -299,53 +176,21 @@ class MinecraftFacetEditorTab(private val configuration: MinecraftFacetConfigura
     }
 
     companion object {
-        private const val BUKKIT = 0
-        private const val SPIGOT = BUKKIT + 1
-        private const val PAPER = SPIGOT + 1
-        private const val SPONGE = PAPER + 1
-        private const val FORGE = SPONGE + 1
-        private const val FABRIC = FORGE + 1
-        private const val ARCHITECTURY = FABRIC + 1
-        private const val LITELOADER = ARCHITECTURY + 1
-        private const val MCP = LITELOADER + 1
-        private const val MIXIN = MCP + 1
-        private const val BUNGEECORD = MIXIN + 1
-        private const val WATERFALL = BUNGEECORD + 1
-        private const val VELOCITY = WATERFALL + 1
-        private const val ADVENTURE = VELOCITY + 1
+
+        private const val SPIGOT = 0
+        private const val FOUNDATION = SPIGOT + 1
+
 
         private val platformTypes = arrayOf(
-            PlatformType.BUKKIT,
+            PlatformType.FOUNDATION,
+
             PlatformType.SPIGOT,
-            PlatformType.PAPER,
-            PlatformType.SPONGE,
-            PlatformType.FORGE,
-            PlatformType.FABRIC,
-            PlatformType.ARCHITECTURY,
-            PlatformType.LITELOADER,
-            PlatformType.MCP,
-            PlatformType.MIXIN,
-            PlatformType.BUNGEECORD,
-            PlatformType.WATERFALL,
-            PlatformType.VELOCITY,
-            PlatformType.ADVENTURE
+
         )
 
         private val indexes = intArrayOf(
-            BUKKIT,
-            SPIGOT,
-            PAPER,
-            SPONGE,
-            FORGE,
-            FABRIC,
-            ARCHITECTURY,
-            LITELOADER,
-            MCP,
-            MIXIN,
-            BUNGEECORD,
-            WATERFALL,
-            VELOCITY,
-            ADVENTURE
+           SPIGOT,
+            FOUNDATION
         )
     }
 }

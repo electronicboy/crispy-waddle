@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -28,11 +28,22 @@ import com.demonwav.mcdev.creator.buildsystem.maven.BasicMavenStep
 import com.demonwav.mcdev.creator.buildsystem.maven.MavenBuildSystem
 import com.demonwav.mcdev.creator.buildsystem.maven.MavenGitignoreStep
 import com.demonwav.mcdev.platform.PlatformType
-import com.demonwav.mcdev.util.MinecraftVersions
-import com.demonwav.mcdev.util.SemanticVersion
+import com.demonwav.mcdev.util.invokeLater
+import com.intellij.execution.BeforeRunTask
+import com.intellij.execution.RunManager
+import com.intellij.execution.configurations.ConfigurationType
+import com.intellij.execution.configurations.ConfigurationTypeUtil
+import com.intellij.execution.configurations.RunConfiguration
+import com.intellij.execution.configurations.SimpleConfigurationType
+import com.intellij.execution.jar.JarApplicationConfiguration
+import com.intellij.icons.AllIcons
+import com.intellij.lang.ant.config.AntConfiguration
+import com.intellij.lang.ant.config.impl.AntBeforeRunTask
+import com.intellij.lang.ant.config.impl.AntConfigurationImpl
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.NotNullLazyValue
 import java.nio.file.Path
 
 sealed class BukkitProjectCreator<T : BuildSystem>(
@@ -50,7 +61,11 @@ sealed class BukkitProjectCreator<T : BuildSystem>(
 
     protected fun setupDependencyStep(): BukkitDependenciesStep {
         val mcVersion = config.minecraftVersion
-        return BukkitDependenciesStep(buildSystem, config.type, mcVersion)
+        return BukkitDependenciesStep(buildSystem, config.type, mcVersion, config.useNms, config.serverPath)
+    }
+
+    protected fun setupAntBuildStep(): AntBuildStep {
+        return AntBuildStep(project, rootDirectory, config)
     }
 
     protected fun setupYmlStep(): PluginYmlStep {
@@ -66,12 +81,13 @@ class BukkitMavenCreator(
 ) : BukkitProjectCreator<MavenBuildSystem>(rootDirectory, rootModule, buildSystem, config) {
 
     override fun getSteps(): Iterable<CreatorStep> {
-        val pomText = BukkitTemplate.applyPom(project)
+        val pomText = BukkitTemplate.applyPom(project, config)
         return listOf(
             setupDependencyStep(),
             BasicMavenStep(project, rootDirectory, buildSystem, config, pomText),
             setupMainClassStep(),
             setupYmlStep(),
+            setupAntBuildStep(),
             MavenGitignoreStep(project, rootDirectory),
             BasicMavenFinalizerStep(rootModule, rootDirectory)
         )
@@ -107,32 +123,13 @@ class BukkitGradleCreator(
 open class BukkitDependenciesStep(
     protected val buildSystem: BuildSystem,
     protected val type: PlatformType,
-    protected val mcVersion: String
+    protected val mcVersion: String,
+    protected val enableNms: Boolean,
+    protected val serverPath: String
 ) : CreatorStep {
     override fun runStep(indicator: ProgressIndicator) {
         when (type) {
-            PlatformType.PAPER -> {
-                buildSystem.repositories.add(
-                    BuildRepository(
-                        "papermc-repo",
-                        "https://repo.papermc.io/repository/maven-public/"
-                    )
-                )
-                val paperGroupId = when {
-                    SemanticVersion.parse(mcVersion) >= MinecraftVersions.MC1_17 -> "io.papermc.paper"
-                    else -> "com.destroystokyo.paper"
-                }
-                buildSystem.dependencies.add(
-                    BuildDependency(
-                        paperGroupId,
-                        "paper-api",
-                        "$mcVersion-R0.1-SNAPSHOT",
-                        mavenScope = "provided",
-                        gradleConfiguration = "compileOnly"
-                    )
-                )
-                addSonatype(buildSystem.repositories)
-            }
+
             PlatformType.SPIGOT -> {
                 spigotRepo(buildSystem.repositories)
                 buildSystem.dependencies.add(
@@ -140,26 +137,25 @@ open class BukkitDependenciesStep(
                         "org.spigotmc",
                         "spigot-api",
                         "$mcVersion-R0.1-SNAPSHOT",
-                        mavenScope = "provided",
-                        gradleConfiguration = "compileOnly"
                     )
                 )
                 addSonatype(buildSystem.repositories)
             }
-            PlatformType.BUKKIT -> {
-                spigotRepo(buildSystem.repositories)
-                buildSystem.dependencies.add(
-                    BuildDependency(
-                        "org.bukkit",
-                        "bukkit",
-                        "$mcVersion-R0.1-SNAPSHOT",
-                        mavenScope = "provided",
-                        gradleConfiguration = "compileOnly"
-                    )
-                )
-            }
             else -> {}
         }
+
+        if (enableNms) {
+            buildSystem.dependencies.add(
+                BuildDependency(
+                    "paper-server",
+                    "Paper-$mcVersion",
+                    "1",
+                    "system",
+                    serverPath + if (mcVersion.replace(".", "").toInt() >= 1180) "/paperclip.jar" else "/cache/patched.jar"
+                )
+            )
+        }
+
     }
 
     protected fun addSonatype(buildRepositories: MutableList<BuildRepository>) {
@@ -175,6 +171,73 @@ open class BukkitDependenciesStep(
         )
     }
 }
+
+class AntJarConfigurationType : SimpleConfigurationType("foJarConfig", "Foundation Jar Configuration", "Jar Application configuration for Foundation",
+    NotNullLazyValue.createValue { AllIcons.FileTypes.Archive }), ConfigurationType {
+
+    fun createConfigurationProperties(config: BukkitProjectConfig, project: Project): RunConfiguration {
+        val configuration = JarApplicationConfiguration(project, this, config.pluginName)
+        configuration.jarPath = config.serverPath + if (config.minecraftVersion.replace(".", "").toInt() >= 1180) "/paperclip.jar" else "/cache/patched.jar" // TODO Change depending on server version
+        configuration.workingDirectory = config.serverPath
+        configuration.programParameters = "nogui"
+
+        return configuration
+    }
+
+    //TODO Not used at all. Explore options to remove this entirely.
+    override fun createTemplateConfiguration(project: Project): RunConfiguration {
+        return JarApplicationConfiguration(project, this, "Jar Application")
+    }
+
+    override fun getHelpTopic(): String? {
+        return "reference.dialogs.rundebug.JarApplication"
+    }
+
+    companion object {
+        val instance: AntJarConfigurationType
+            get() = ConfigurationTypeUtil.findConfigurationType(AntJarConfigurationType::class.java)
+    }
+}
+
+class AntBuildStep(
+    private val project: Project,
+    private val rootDirectory: Path,
+    private val config: BukkitProjectConfig,
+) : CreatorStep {
+    override fun runStep(indicator: ProgressIndicator) {
+        if (!config.useAnt) {
+            return
+        }
+
+        val text = BukkitTemplate.applyAntBuild(project, config)
+        val file = CreatorStep.writeTextToFile(project, rootDirectory, "build.xml", text)
+
+        invokeLater(project.disposed) {
+            val runnerSettings = AntJarConfigurationType().createConfigurationProperties(config, project)
+
+            val runManager = RunManager.getInstance(project)
+            val runConfiguration = runManager.createConfiguration(runnerSettings, runnerSettings.factory!!)
+
+            val antConfiguration = AntConfiguration.getInstance(project) as AntConfigurationImpl
+            antConfiguration.addBuildFile(file)
+
+            val antBeforeRunTask = AntBeforeRunTask(project)
+            antBeforeRunTask.antFileUrl = "file://${project.basePath}/build.xml"
+            antBeforeRunTask.targetName = "Build"
+
+            val beforeRunTasks = mutableListOf<BeforeRunTask<*>>()
+            beforeRunTasks.add(antBeforeRunTask)
+
+            runConfiguration.configuration.beforeRunTasks = beforeRunTasks
+
+            runManager.addConfiguration(runConfiguration)
+            if (runManager.selectedConfiguration == null) {
+                runManager.selectedConfiguration = runConfiguration
+            }
+        }
+    }
+}
+
 
 class PluginYmlStep(
     private val project: Project,

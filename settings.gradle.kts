@@ -3,13 +3,13 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
 
 rootProject.name = "MinecraftDev"
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+gradle.startParameter.showStacktrace = ShowStacktrace.ALWAYS_FULL
 
-include("mixin-test-data")
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

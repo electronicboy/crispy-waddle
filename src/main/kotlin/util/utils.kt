@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -13,7 +13,6 @@ package com.demonwav.mcdev.util
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.intellij.lang.java.lexer.JavaLexer
-import com.intellij.openapi.application.AppUIExecutor
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.application.runReadAction
@@ -25,6 +24,7 @@ import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.roots.libraries.LibraryKind
+import com.intellij.openapi.roots.libraries.LibraryKindRegistry
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.Ref
@@ -32,9 +32,6 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import java.util.Locale
-import kotlin.reflect.KClass
-import org.jetbrains.concurrency.Promise
-import org.jetbrains.concurrency.runAsync
 
 inline fun <T : Any?> runWriteTask(crossinline func: () -> T): T {
     return invokeAndWait {
@@ -92,10 +89,6 @@ fun invokeLaterAny(func: () -> Unit) {
     ApplicationManager.getApplication().invokeLater(func, ModalityState.any())
 }
 
-fun <T> invokeEdt(block: () -> T): T {
-    return AppUIExecutor.onUiThread().submit(block).get()
-}
-
 inline fun <T : Any?> PsiFile.runWriteAction(crossinline func: () -> T) =
     applyWriteAction { func() }
 
@@ -105,12 +98,6 @@ inline fun <T : Any?> PsiFile.applyWriteAction(crossinline func: PsiFile.() -> T
     val document = documentManager.getDocument(this) ?: return result
     documentManager.doPostponedOperationsAndUnblockDocument(document)
     return result
-}
-
-inline fun <T> runReadActionAsync(crossinline runnable: () -> T): Promise<T> {
-    return runAsync {
-        runReadAction(runnable)
-    }
 }
 
 fun waitForAllSmart() {
@@ -241,7 +228,6 @@ fun Module.findChildren(): Set<Module> {
 // Using the ugly TypeToken approach we can use any complex generic signature, including
 // nested generics
 inline fun <reified T : Any> Gson.fromJson(text: String): T = fromJson(text, object : TypeToken<T>() {}.type)
-fun <T : Any> Gson.fromJson(text: String, type: KClass<T>): T = fromJson(text, type.java)
 
 fun <K> Map<K, *>.containsAllKeys(vararg keys: K) = keys.all { this.containsKey(it) }
 
@@ -330,7 +316,7 @@ inline fun <reified T> Iterable<*>.firstOfType(): T? {
     return this.firstOrNull { it is T } as? T
 }
 
-fun libraryKind(id: String): LibraryKind = LibraryKind.findById(id) ?: LibraryKind.create(id)
+fun libraryKind(id: String): LibraryKind = LibraryKindRegistry.getInstance().findKindById(id) ?: LibraryKind.create(id)
 
 fun String.capitalize(): String =
     replaceFirstChar {

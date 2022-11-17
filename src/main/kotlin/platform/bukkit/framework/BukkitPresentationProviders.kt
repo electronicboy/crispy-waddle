@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -14,20 +14,9 @@ import com.demonwav.mcdev.asset.PlatformAssets
 import com.demonwav.mcdev.facet.MavenLibraryPresentationProvider
 import com.intellij.framework.library.LibraryVersionProperties
 
-class BukkitPresentationProvider : MavenLibraryPresentationProvider(BUKKIT_LIBRARY_KIND, "org.bukkit", "bukkit") {
-    override fun getIcon(properties: LibraryVersionProperties?) = PlatformAssets.BUKKIT_ICON
-}
+class BukkitPresentationProvider : MavenLibraryPresentationProvider(BUKKIT_LIBRARY_KIND, "org.bukkit", "bukkit")
 
 class SpigotPresentationProvider : MavenLibraryPresentationProvider(SPIGOT_LIBRARY_KIND, "org.spigotmc", "spigot-api") {
     override fun getIcon(properties: LibraryVersionProperties?) = PlatformAssets.SPIGOT_ICON
 }
 
-class OldPaperPresentationProvider :
-    MavenLibraryPresentationProvider(PAPER_LIBRARY_KIND, "com.destroystokyo.paper", "paper-api") {
-    override fun getIcon(properties: LibraryVersionProperties?) = PlatformAssets.PAPER_ICON
-}
-
-class PaperPresentationProvider :
-    MavenLibraryPresentationProvider(PAPER_LIBRARY_KIND, "io.papermc.paper", "paper-api", false) {
-    override fun getIcon(properties: LibraryVersionProperties?) = PlatformAssets.PAPER_ICON
-}

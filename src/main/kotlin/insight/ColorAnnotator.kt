@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -17,7 +17,7 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.psi.PsiElement
 import java.awt.Color
-import java.awt.Font
+//import java.awt.Font
 import org.jetbrains.uast.UIdentifier
 import org.jetbrains.uast.toUElementOfType
 
@@ -30,17 +30,17 @@ class ColorAnnotator : Annotator {
 
         val color = element.toUElementOfType<UIdentifier>()?.findColor { _, chosenEntry -> chosenEntry.value } ?: return
 
-        setColorAnnotator(color, element, holder)
+//        setColorAnnotator(color, element, holder)
     }
 
-    companion object {
-        fun setColorAnnotator(color: Color, element: PsiElement, holder: AnnotationHolder) {
-            val textAttributes =
-                TextAttributes(null, null, color, MinecraftSettings.instance.underlineType.effectType, Font.PLAIN)
-            holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
-                .range(element)
-                .enforcedTextAttributes(textAttributes)
-                .create()
-        }
-    }
+//    companion object {
+//        fun setColorAnnotator(color: Color, element: PsiElement, holder: AnnotationHolder) {
+//            val textAttributes =
+//                TextAttributes(null, null, color, MinecraftSettings.instance.underlineType.effectType, null)
+//            holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
+//                .range(element)
+//                .enforcedTextAttributes(textAttributes)
+//                .create()
+//        }
+//    }
 }

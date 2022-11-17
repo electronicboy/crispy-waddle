@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -78,10 +78,14 @@ class MinecraftFacet(
                 .filter { it.value }
                 .map { it.key }
 
+
             val autoEnabled = autoDetectTypes.asSequence()
                 .filter { userChosenTypes[it] == null }
 
             userEnabled + autoEnabled
+
+
+
         }
 
         // Remove modules that aren't registered anymore
@@ -103,9 +107,7 @@ class MinecraftFacet(
             .forEach {
                 newlyEnabled += register(it)
             }
-
         newlyEnabled.forEach(AbstractModule::init)
-
         ProjectView.getInstance(module.project).refresh()
     }
 
@@ -190,12 +192,12 @@ class MinecraftFacet(
     val icon: Icon?
         get() {
             val modulesWithIcon = moduleMap.keys.filter { it.hasIcon }
-            val candidateModules = modulesWithIcon.filter { !it.isIconSecondary }
+            var candidateModules = modulesWithIcon.filter { !it.isIconSecondary }
                 .ifEmpty { modulesWithIcon }
             return when (candidateModules.size) {
                 0 -> null
                 1 -> candidateModules.single().icon
-                else -> PlatformAssets.MINECRAFT_ICON
+                else -> PlatformAssets.FOUNDATION_ICON
             }
         }
 

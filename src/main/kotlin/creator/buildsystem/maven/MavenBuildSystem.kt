@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -26,8 +26,9 @@ class MavenBuildSystem(
     groupId: String,
     artifactId: String,
     version: String,
+//    javaVersion: String,
     override val parent: MavenBuildSystem? = null
-) : BuildSystem(groupId, artifactId, version) {
+) : BuildSystem(groupId, artifactId, version,) {
 
     override val type = BuildSystemType.MAVEN
 

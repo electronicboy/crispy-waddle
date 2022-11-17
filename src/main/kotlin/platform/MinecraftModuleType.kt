@@ -3,7 +3,7 @@
  *
  * https://minecraftdev.org
  *
- * Copyright (c) 2022 minecraft-dev
+ * Copyright (c) 2021 minecraft-dev
  *
  * MIT License
  */
@@ -22,12 +22,12 @@ class MinecraftModuleType : JavaModuleType() {
     override fun getNodeIcon(isOpened: Boolean) = PlatformAssets.MINECRAFT_ICON
     override fun getName() = NAME
     override fun getDescription() =
-        "Minecraft modules are used for developing plugins or mods for <b>Minecraft</b> " +
+        "Minecraft modules are used for developing plugins for <b>Minecraft</b> " +
             "(Java Edition, also known as the PC Edition)."
 
     companion object {
         private const val ID = "MINECRAFT_MODULE_TYPE"
-        const val NAME = "Minecraft"
+        const val NAME = "Foundation"
 
         val instance: MinecraftModuleType
             get() = ModuleTypeManager.getInstance().findByID(ID) as MinecraftModuleType

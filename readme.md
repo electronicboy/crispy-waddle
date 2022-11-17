@@ -1,121 +1,35 @@
-<p align="center"><a href="https://minecraftdev.org/"><img src="https://minecraftdev.org/assets/icon.svg" height="120" alt="logo"/></a></p>
 
-Minecraft Development for IntelliJ
+MineAcademy Development for IntelliJ
 ==================================
 
-<table>
-    <tr>
-        <td align="center" colspan="3"><b>Build Status</b></td>
-    </tr>
-    <tr>
-        <td align="right"><b>Main Build</b></td>
-        <td colspan="2"><a href="https://ci.denwav.dev/viewType.html?buildTypeId=MinecraftDev_Build"><img src="https://ci.denwav.dev/app/rest/builds/buildType:(id:MinecraftDev_Build)/statusIcon.svg" alt="Teamcity Build Status" /></a></td>
-    </tr>
-    <tr>
-        <td align="right" rowspan="5"><b>Nightly Builds</b></td>
-        <td align="left">2021.2</td>
-        <td align="left"><a href="https://ci.denwav.dev/viewType.html?buildTypeId=MinecraftDev_Nightly_20212"><img src="https://ci.denwav.dev/app/rest/builds/buildType:(id:MinecraftDev_Nightly_20212)/statusIcon.svg" alt="2021.2 Nightly Status" /></a></td>
-    </tr>
-    <tr>
-        <td align="left">2021.3</td>
-        <td align="left"><a href="https://ci.denwav.dev/viewType.html?buildTypeId=MinecraftDev_Nightly_20213"><img src="https://ci.denwav.dev/app/rest/builds/buildType:(id:MinecraftDev_Nightly_20213)/statusIcon.svg" alt="2021.3 Nightly Status" /></a></td>
-    </tr>
-    <tr>
-        <td align="left">2022.1</td>
-        <td align="left"><a href="https://ci.denwav.dev/viewType.html?buildTypeId=MinecraftDev_Nightly_20221"><img src="https://ci.denwav.dev/app/rest/builds/buildType:(id:MinecraftDev_Nightly_20221)/statusIcon.svg" alt="2022.1 Nightly Status" /></a></td>
-    </tr>
-    <tr>
-        <td align="left">2022.2</td>
-        <td align="left"><a href="https://ci.denwav.dev/viewType.html?buildTypeId=MinecraftDev_Nightly_20222"><img src="https://ci.denwav.dev/app/rest/builds/buildType:(id:MinecraftDev_Nightly_20222)/statusIcon.svg" alt="2022.2 Nightly Status" /></a></td>
-    </tr>
-    <tr>
-        <td align="left">2022.3</td>
-        <td align="left"><a href="https://ci.denwav.dev/viewType.html?buildTypeId=MinecraftDev_Nightly_20223"><img src="https://ci.denwav.dev/app/rest/builds/buildType:(id:MinecraftDev_Nightly_20223)/statusIcon.svg" alt="2022.3 Nightly Status" /></a></td>
-    </tr>
-    <tr>
-        <td align="right"><b>OS Tests</b></td>
-        <td align="left" colspan="2">
-            <a href="https://github.com/minecraft-dev/MinecraftDev/actions?query=workflow%3A%22Test%22"><img src="https://github.com/minecraft-dev/MinecraftDev/workflows/Test/badge.svg?branch=dev&event=push" alt="GitHub Action Status" /></a>
-         </td>
-    </tr>
-</table>
 
-Info and Documentation [![Current Release](https://img.shields.io/badge/release-1.5.21-orange.svg?style=flat-square)](https://plugins.jetbrains.com/plugin/8327)
+ 
+Info and Documentation
 ----------------------
+This project is a fork of the fantastic Intellij plugin [**MineCraft Development**](https://github.com/minecraft-dev/MinecraftDev)
+MineAcademy Development is an Intellij plugin based off Minecraft Development to help Minecraft plugin developers by providing
+them with extra tooling  to increase their development productivity.
 
-<a href="https://discord.gg/j6UNcfr"><img src="https://i.imgur.com/JXu9C1G.png" height="48px"></img></a>
-
-Visit [https://minecraftdev.org](https://minecraftdev.org) for some information about the project.
-
+Please check the Projects tab for more information about upcoming features!
 
 Installation
 ------------
+The ultimate goal is to have this project on the Intellij Plugin Marketplace. As it currently stands the project will be on Github
+and move to the Intellij Plugin Marketplace when it's in a more mature state.
 
-This plugin is available on the [JetBrains IntelliJ plugin repository](https://plugins.jetbrains.com/plugin/8327).
+Download the zip folder from the Releases tab. Go to your Intellij settings. Navigate to `Plugins -> Installed` and select the settings icon just to the right of "Installed".
+Click on `Install Plugin from Disk...` and select the zip folder. Restart your IDE and enjoy!
 
-Because of this, you can install the plugin through IntelliJ's internal plugin browser. Navigate to
-`File -> Settings -> Plugins` and click the `Browse Repositories...` button at the bottom of the window. In the search
-box, simply search for `Minecraft`. You can install it from there and restart IntelliJ to activate the plugin.
 
-Building
---------
 
-Build the plugin with:
 
-`./gradlew build`
 
-The output .zip file for the plugin will be in `build/distributions`.
 
-Test the plugin in IntelliJ with:
+Fork Developers
+----------
+- [**@MyNameIsAres**](https://github.com/MyNameIsAres/)
 
-`./gradlew runIde`
-
-Code is generated during the build task, to run the generation task without building use:
-
-`./gradlew generate`
-
-This task is necessary to work on the code without errors before the initial build.
-
-To format the code in this project:
-
-`./gradlew format`
-
-This will format using `ktlint` described below in the [style guide](#style-guide) section below.
-
-The [Gradle IntelliJ Plugin](https://github.com/JetBrains/gradle-intellij-plugin)
-will handle downloading the IntelliJ dependencies and packaging the
-plugin.
-
-Style Guide
------------
-
-This projects follows the opinionated [`ktlint`](https://ktlint.github.io/) linter and formatter. It uses the
-[`ktlint-gradle`](https://github.com/jlleitschuh/ktlint-gradle) plugin to automatically check and format the code in
-this repo.
-
-IDE Setup
----------
-
-It's recommended to run the `ktlintApplyToIdea` and `addKtlintFormatGitPreCommitHook` tasks to configure your
-IDE with `ktlint` style settings and to automatically format this project's code before committing:
-
-```
-./gradlew ktlintApplyToIdea addKtlintFormatGitPreCommitHook
-```
-
-IntelliJ includes a lot of dependencies transitively, including common dependencies that are used a lot, such as Kotlin,
-Commons Lang3, Guava, etc. Unfortunately, the source distribution for IntelliJ does not contain sources for libraries as
-well, so these libraries are imported into the IDE without sources by default. If you want to attach sources for (most)
-of the dependencies IntelliJ includes, run the `resolveIntellijLibSources` task and refresh the Gradle project in
-IntelliJ:
-
-```
-./gradlew resolveIntellijLibSources
-```
-
-If you're curious about that task, it is implemented in `buildSrc`.
-
-Developers
+Original Developers
 ----------
 
 - Project Owner - [**@DenWav** - Kyle Wood](https://github.com/DenWav)
@@ -135,15 +49,19 @@ License
 
 This project is licensed under [MIT](license.txt).
 
+Credits & Disclaimer
+-------
+This Intellij plugin would not have been possible without the incredible work done by the developers and contributors from
+Minecraft Development. I am not claiming to be the original author of their work and this plugin is only possible because 
+of their work. 
+
+It is my understanding that this project does not violate any license from MineCraft Development. 
+
+As it currently stands this plugin may not be fully compatible with Minecraft Development as we both share the Minecraft Facet.
+
 Supported Platforms
 -------------------
 
-- [![Bukkit Icon](src/main/resources/assets/icons/platform/Bukkit.png?raw=true) **Bukkit**](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/bukkit/browse) ([![Spigot Icon](src/main/resources/assets/icons/platform/Spigot.png?raw=true) Spigot](https://spigotmc.org/) and [![Paper Icon](src/main/resources/assets/icons/platform/Paper.png?raw=true) Paper](https://papermc.io/))
-- [![Sponge Icon](src/main/resources/assets/icons/platform/Sponge_dark.png?raw=true) **Sponge**](https://www.spongepowered.org/)
-- [![Architectury Icon](src/main/resources/assets/icons/platform/Architectury.png?raw=true) **Architectury**](https://github.com/architectury/architectury-api)
-- [![Forge Icon](src/main/resources/assets/icons/platform/Forge.png?raw=true) **Minecraft Forge**](https://forums.minecraftforge.net/)
-- [![Fabric Icon](src/main/resources/assets/icons/platform/Fabric.png?raw=true) **Fabric**](https://fabricmc.net)
-- [![LiteLoader Icon](src/main/resources/assets/icons/platform/LiteLoader.png?raw=true) **LiteLoader**](http://www.liteloader.com/)
-- [![MCP Icon](src/main/resources/assets/icons/platform/MCP.png?raw=true) **MCP**](http://www.modcoderpack.com/)
-- [![Mixins Icon](src/main/resources/assets/icons/platform/Mixins_dark.png?raw=true) **Mixins**](https://github.com/SpongePowered/Mixin)
-- [![BungeeCord Icon](src/main/resources/assets/icons/platform/BungeeCord.png?raw=true) **BungeeCord**](https://www.spigotmc.org/wiki/bungeecord/) ([![Waterfall Icon](src/main/resources/assets/icons/platform/Waterfall.png?raw=true) Waterfall](https://github.com/PaperMC/Waterfall))
+- [![Foundation Icon](src/main/resources/assets/icons/platform/Foundation.png?raw=true) **Foundation**](https://github.com/kangarko/Foundation) and [![Spigot Icon](src/main/resources/assets/icons/platform/Spigot.png?raw=true) Spigot](https://spigotmc.org/)
+
+
